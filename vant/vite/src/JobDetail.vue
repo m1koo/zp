@@ -21,7 +21,6 @@
       <van-cell title="工作单位" :value="job?.employer" />
       <van-cell title="所在城市" :value="job?.location" />
       <van-cell title="详细地址" :value="job?.address" />
-
       <van-cell title="薪资" :value="job?.salary" class="salary" />
       <van-cell title="性别" :value="job?.gender" />
       <van-cell title="人数" :value="job?.number" />
