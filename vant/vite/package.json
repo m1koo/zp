@@ -7,8 +7,11 @@
     "build": "vite build"
   },
   "dependencies": {
+    "@vant/area-data": "^1.5.1",
+    "axios": "^1.6.8",
     "vant": "^4.0.0",
-    "vue": "^3.2.45"
+    "vue": "^3.2.45",
+    "vue-router": "^4.3.0"
   },
   "devDependencies": {
     "@vant/auto-import-resolver": "^1.0.1",
