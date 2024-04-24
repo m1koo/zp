@@ -18,14 +18,14 @@
     </van-button>
     <van-cell-group>
       <van-cell title="岗位" :value="job?.title" />
-      <van-cell title="工作单位" :value="job?.employer" />
+      <van-cell title="工作单位" :value="job?.employerName" />
       <van-cell title="所在城市" :value="job?.location" />
       <van-cell title="详细地址" :value="job?.address" />
       <van-cell title="薪资" :value="job?.salary" class="salary" />
-      <van-cell title="性别" :value="job?.gender" />
+      <van-cell title="性别" :value="job?.grand" />
       <van-cell title="人数" :value="job?.number" />
-      <van-cell title="年龄" :value="job?.ageRange" />
-      <van-cell title="岗位详情" :value="job?.details" class="salary" />
+      <van-cell title="年龄" :value="job?.age" />
+      <van-cell title="岗位详情" :value="job?.description" class="salary" />
     </van-cell-group>
 
     <van-divider />

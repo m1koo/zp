@@ -16,6 +16,7 @@ const routes = [
         name: 'Job',
         component: Job
     },
+
     {
         path: '/home',
         name: 'HomePage',
@@ -44,7 +45,7 @@ const routes = [
 ];
 
 const router = createRouter({
-    history: createWebHistory('/'),
+    history: createWebHistory('/wxzp'),
     routes
 });
 
