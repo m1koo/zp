@@ -3,12 +3,23 @@ import Job from '../Job.vue'
 import JobDetail from '../JobDetail.vue'
 import PostJob from '../PostJob.vue'
 import MyResume from '../MyResume.vue'
+import MyJob from '../MyJob.vue'
+import CreateJob from '../CreateJob.vue'
 
 
 
 
 const routes = [
-
+    {
+        path: '/MyJob',
+        name: 'myJob',
+        component: MyJob
+    },
+    {
+        path: '/createJob',
+        name: 'createJob',
+        component: CreateJob
+    },
     {
         path: '/job',
         name: 'Job',

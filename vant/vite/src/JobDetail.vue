@@ -7,12 +7,20 @@
   />
 
   <div class="job-detail-container">
+
+    <van-button v-if="isEdit" round block @click="editJob" type="info" class="apply-button">
+      编辑职位
+    </van-button>
+
+    <van-button v-if="isEdit" round block  @click="deleteJob" type="info" class="apply-button">
+      删除职位
+    </van-button>
+
     <van-button round block type="info" @click="postResume" class="apply-button">
       在线申请
     </van-button>
-    <van-button round block type="info" class="apply-button">
-      收藏
-    </van-button>
+
+
     <van-button round block type="info" class="apply-button">
       电话联系
     </van-button>
@@ -34,19 +42,41 @@
 
 <script>
 import axios from 'axios'; // 确保安装并引入axios
-import {getJobDetail, getJobs} from './api/api';
+import {getJobDetail, deleteJob} from './api/api';
+import { showConfirmDialog } from 'vant';
 
 export default {
   name: 'JobDetail',
   data() {
     return {
-      job: null
+      job: null,
+      isEdit: false,
     };
   },
   mounted() {
+    this.isEdit = this.$route.query.edit
     this.fetchJobDetails();
   },
   methods: {
+    deleteJob(){
+      showConfirmDialog({
+        title: '标题',
+        message:
+            '确认删除吗',
+      })
+          .then(() => {
+            // on confirm
+            deleteJob(this.job.jobId).then(()=>{
+              this.$router.go(-1)
+            })
+          })
+          .catch(() => {
+            // on cancel
+          });
+    },
+    editJob(){
+      this.$router.push({path: '/createJob', query: {jobId: this.$route.query.id}})
+    },
     postResume(){
       this.$router.push({path: '/myResume', query: {jobId: this.$route.query.id}})
     },

@@ -60,8 +60,8 @@
 import { ref, reactive, toRefs } from 'vue';
 import { areaList } from '@vant/area-data';
 import { myresume, saveresume,sendresume } from './api/api';
-import { showNotify } from 'vant';
 import { useRouter, useRoute } from 'vue-router'
+import { showToast } from 'vant';
 
 
 export default {
@@ -75,17 +75,12 @@ export default {
   setup() {
     const route = useRoute()
     const router = useRouter()
-
-
     const showCity = ref(false);
-
     const sendResume = async () => {
-
       let jobId = route.query.jobId
-
       if(jobId){
         await sendresume({jobId: jobId})
-        showNotify({ message: '投递成功' });
+        showToast({ message: '投递成功' });
         router.go(-1)
       }else{
         router.push('/job')
