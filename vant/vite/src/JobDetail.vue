@@ -7,7 +7,7 @@
   />
 
   <div class="job-detail-container">
-    <van-button round block type="info" class="apply-button">
+    <van-button round block type="info" @click="postResume" class="apply-button">
       在线申请
     </van-button>
     <van-button round block type="info" class="apply-button">
@@ -47,6 +47,9 @@ export default {
     this.fetchJobDetails();
   },
   methods: {
+    postResume(){
+      this.$router.push({path: '/myResume', query: {jobId: this.$route.query.id}})
+    },
     async fetchJobDetails() {
       const jobId = this.$route.query.id;
       const response = await getJobDetail(jobId);

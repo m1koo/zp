@@ -25,3 +25,54 @@ export const getJobDetail = async (id) => {
         throw error;
     }
 };
+
+
+// api.js
+export const login = async (code) => {
+    try {
+        const response = await apiClient.post('/login', {
+            code: code
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching jobs:', error);
+        throw error;
+    }
+};
+
+
+// api.js
+export const myresume = async () => {
+    try {
+        const response = await apiClient.post('/profiles/my', {
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching jobs:', error);
+        throw error;
+    }
+};
+
+
+// api.js
+export const saveresume = async (profile) => {
+    try {
+        const response = await apiClient.post('/profiles/save', profile);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching jobs:', error);
+        throw error;
+    }
+};
+
+
+// api.js
+export const sendresume = async (application) => {
+    try {
+        const response = await apiClient.post('/application/add', application);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching jobs:', error);
+        throw error;
+    }
+};

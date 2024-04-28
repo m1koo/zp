@@ -13,20 +13,20 @@
 
   <div class="resume-edit-container">
     <van-form @submit="onSubmit">
-      <van-field name="name" label="姓名" v-model="resume.name" required readonly />
-      <van-field name="phone" label="联系电话" v-model="resume.phone" required readonly type="tel" />
-      <van-field label="所在城市" v-model="resume.city" readonly required/>
-      <van-field name="age" label="年龄" v-model="resume.age" required readonly />
-      <van-field name="grand" label="性别" v-model="resume.grand" required readonly />
+      <van-field name="fullName" label="姓名" v-model="resume.fullName" required :readonly="!isEditing" />
+      <van-field name="contactInfo" label="联系电话" v-model="resume.contactInfo" required :readonly="!isEditing"  type="tel" />
+      <van-field name="address" label="所在城市" v-model="resume.city" :readonly="!isEditing"  required/>
+      <van-field name="age" label="年龄" v-model="resume.age" required :readonly="!isEditing"  />
+      <van-field name="gender" label="性别" v-model="resume.gender" required :readonly="!isEditing"  />
 
       <!-- Work Experience Section -->
       <van-divider>工作经验</van-divider>
 
       <van-field
-          readonly
-          name="workDetail"
-          label="工作描述"
-          v-model="resume.workDetail"
+          :readonly="!isEditing"
+          name="experience"
+          label="工作经验"
+          v-model="resume.experience"
           type="textarea"
           rows="4"
           autosize
@@ -35,64 +35,107 @@
       <!-- Skills Section -->
       <van-divider>技能</van-divider>
       <van-field
-          readonly
-          name="workDetail"
+          :readonly="!isEditing"
+          name="skills"
           label="技能描述"
-          v-model="resume.workDetail"
+          v-model="resume.skills"
           type="textarea"
           rows="4"
           autosize
       />
 
-      <div class="button-container">
-        <van-button round block type="primary" native-type="submit">
-          编辑简历
+        <van-button round block type="primary" @click="toggleEdit" native-type="submit">
+          {{isEditing? '保存简历':'编辑简历'}}
         </van-button>
-        <van-button round block type="danger">
-          删除简历
+        <van-button style="margin-top: 10px" round block type="primary" @click="sendResume">
+          投递简历
         </van-button>
-      </div>
+
 
     </van-form>
   </div>
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, reactive, toRefs } from 'vue';
 import { areaList } from '@vant/area-data';
+import { myresume, saveresume,sendresume } from './api/api';
+import { showNotify } from 'vant';
+import { useRouter, useRoute } from 'vue-router'
+
 
 export default {
   name: 'ResumeEdit',
+  async mounted() {
+    let res = await myresume()
+    if (res && res.age) {
+      this.resume = res;
+    }
+  },
   setup() {
+    const route = useRoute()
+    const router = useRouter()
+
+
     const showCity = ref(false);
 
-    const chooseCity = (ConfirmResult) => {
-      console.log(ConfirmResult)
-      showCity.value = false
+    const sendResume = async () => {
+
+      let jobId = route.query.jobId
+
+      if(jobId){
+        await sendresume({jobId: jobId})
+        showNotify({ message: '投递成功' });
+        router.go(-1)
+      }else{
+        router.push('/job')
+      }
     };
 
 
+    const chooseCity = (ConfirmResult) => {
+      showCity.value = false;
+    };
+
+    const isEditing = ref(false);
+    const toggleEdit = () => {
+      isEditing.value = !isEditing.value;
+
+      if (!isEditing.value) {
+
+        if (!resume.value.fullName || !resume.value.contactInfo || !resume.value.city ||
+            !resume.value.age || !resume.value.gender) {
+          showNotify({ message: '必填信息不得为空' });
+          return;
+        }
+
+        saveresume(resume.value);
+      }
+    };
+
     const resume = ref({
-      name: '',
-      email: '',
-      phone: '',
-      address: '',
+      gender: '',
+      age: '',
+      fullName: '',
+      city: '',
+      contactInfo: '',
       education: '',
-      school: '',
-      major: '',
-      company: '',
-      position: '',
-      workDetail: '',
+      experience: '',
       skills: ''
     });
 
     const onSubmit = (values) => {
+      // Check if required fields are empty
+
       console.log('Form submitted with:', values);
       // Here you would handle the resume update logic, such as sending the data to a backend.
     };
 
     return {
+      toggleEdit,
+      isEditing,
       showCity,
+      sendResume,
       areaList,
       chooseCity,
       resume,
@@ -101,6 +144,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 .resume-edit-container {

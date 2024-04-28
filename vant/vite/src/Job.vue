@@ -36,136 +36,99 @@
 </template>
 
 <script>
-import { ref } from 'vue';
 import JobListItem from './JobListItem.vue';
 import { areaList } from '@vant/area-data';
-import { getJobs } from './api/api';
-
-import { useRouter } from 'vue-router';
+import { getJobs, login } from './api/api';
 
 export default {
   name: 'JobList',
   components: {
     JobListItem
   },
-  setup() {
-    const list = ref([
-      // 测试数据
-      /* ... */
-    ]);
-    const loading = ref(false);
-    const finished = ref(false);
-    const showCitySelector = ref(false);
-    const showSalaryPicker = ref(false);
-    const salaryOptions = [
-      { text: '不限', value: '不限' },
-      { text: '1000以内', value: '1000以内' },
-      { text: '1000-2000', value: '1000-2000' },
-      { text: '2000-4000', value: '2000-4000' },
-      { text: '4000-6000', value: '4000-6000' },
-      { text: '6000-8000', value: '6000-8000' },
-      { text: '8000+', value: '8000=' }
-    ];
-    const filters = ref({
-      city: '不限',
-      salary: '不限',
-    });
-
-// JobList 组件内
-    const page = ref(1);
-    const limit = ref(20); // 例如，每页显示10条
-
-    const applyFilters = async () => {
-      loading.value = true;
-
-      let filterData = JSON.parse(JSON.stringify(filters.value))
-      if(filterData.city === '不限'){
-        filterData.city = ''
-      }
-      if(filterData.salary === '不限'){
-        filterData.salary = ''
-      }
-      try {
-        const response = await getJobs(filterData, page.value, limit.value);
-        if (response.records && response.records.length > 0) {
-          list.value.push(...response.records);
-          page.value++; // 增加页码
-        } else {
-          finished.value = true; // 没有更多数据
-        }
-      } catch (error) {
-        finished.value = true;
-
-        // 处理错误情况
-      } finally {
-        loading.value = false;
-      }
-    };
-
-    // 当用户滚动到列表底部时，加载更多数据
-    const onLoad = async () => {
-      if (!finished.value) {
-        await applyFilters();
-      }
-    };
-
-    const resetFilters = () => {
-      filters.value = { city: '不限', salary: '不限' };
-      resetList()
-      applyFilters();
-    };
-
-    const chooseCity = (item) => {
-      filters.value.city = item.selectedOptions[1].text;
-      showCitySelector.value = false;
-      resetList()
-      applyFilters();
-    };
-
-    const chooseSalary = (value) => {
-      filters.value.salary = value.selectedValues[0];
-      showSalaryPicker.value = false;
-      resetList();
-      applyFilters();
-    };
-
-    const resetList = () => {
-      page.value = 1
-      list.value = []
-    };
-
-    const isSalaryInRange = (salary, range) => {
-      const salaryValue = parseInt(salary);
-      const rangeParts = range.split('-');
-      if (range.includes('以内')) {
-        return salaryValue <= 1000;
-      } else if (range.includes('+')) {
-        return salaryValue > 8000;
-      } else {
-        return salaryValue >= parseInt(rangeParts[0]) && salaryValue <= parseInt(rangeParts[1]);
-      }
-    };
-
+  data() {
     return {
-      list,
-      loading,
-      finished,
-      showCitySelector,
-      showSalaryPicker,
-      salaryOptions,
-      filters,
-      applyFilters,
-      resetFilters,
-      chooseCity,
-      chooseSalary,
-      areaList,
-      resetList,
-      onLoad,
+      areaList: areaList,
+      list: [],
+      loading: false,
+      finished: false,
+      showCitySelector: false,
+      showSalaryPicker: false,
+      salaryOptions: [
+        { text: '不限', value: '不限' },
+        { text: '1000以内', value: '1000以内' },
+        { text: '1000-2000', value: '1000-2000' },
+        { text: '2000-4000', value: '2000-4000' },
+        { text: '4000-6000', value: '4000-6000' },
+        { text: '6000-8000', value: '6000-8000' },
+        { text: '8000+', value: '8000=' }
+      ],
+      filters: {
+        city: '不限',
+        salary: '不限'
+      },
+      page: 1,
+      limit: 20
     };
   },
+
+  async created() {
+    const code = this.$route.query.code;
+    if (code) {
+      let res = await login(code);
+      if(res.code === 200){
+        localStorage.Authorization = res.data.token
+      }
+    }
+
+
+    if (!this.finished) {
+      await this.applyFilters();
+    }
+  },
   methods: {
+    async applyFilters() {
+      this.loading = true;
+      let filterData = JSON.parse(JSON.stringify(this.filters));
+      filterData.city = filterData.city === '不限' ? '' : filterData.city;
+      filterData.salary = filterData.salary === '不限' ? '' : filterData.salary;
+
+      try {
+        const response = await getJobs(filterData, this.page, this.limit);
+        if (response.records && response.records.length > 0) {
+          this.list.push(...response.records);
+          this.page++;
+        } else {
+          this.finished = true;
+        }
+      } catch (error) {
+        this.finished = true;
+      } finally {
+        this.loading = false;
+      }
+    },
+    resetFilters() {
+      this.filters = { city: '不限', salary: '不限' };
+      this.resetList();
+      this.applyFilters();
+    },
+    chooseCity(item) {
+      this.filters.city = item.selectedOptions[1].text;
+      this.showCitySelector = false;
+      this.resetList();
+      this.applyFilters();
+    },
+    chooseSalary(value) {
+      this.filters.salary = value.selectedValues[0];
+      this.showSalaryPicker = false;
+      this.resetList();
+      this.applyFilters();
+    },
+    resetList() {
+      this.page = 1;
+      this.list = [];
+    },
     goToJobDetail(jobId) {
-      this.$router.push({ path: `/jobdetail`,query: {id: jobId} });
+      this.$router.push({ path: `/jobdetail`, query: { id: jobId } });
     }
   }
 };
